@@ -23,20 +23,21 @@ jobs:
       run: yarn install
 
     - name: Build Backstage app
-      run: yarn build
+      run: yarn run build:all
 
     - name: Build Docker image
       uses: docker/build-push-action@v2
       with:
         push: false
         tags: gonzalovazquez/fragment7:latest  # Change to your Docker Hub username/repository
-
+  
+  publish:
+k
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:oidc-provider/token.actions.githubusercontent.com
         aws-region: ${{ vars.AWS_REGION}}
-
 
     - name: Login to Amazon ECR
       id: login-ecr
