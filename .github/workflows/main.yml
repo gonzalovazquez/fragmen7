@@ -32,7 +32,7 @@ jobs:
         tags: gonzalovazquez/fragment7:latest  # Change to your Docker Hub username/repository
   
   publish:
-k
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
