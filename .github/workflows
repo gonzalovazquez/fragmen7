@@ -1,0 +1,55 @@
+name: Build and Publish Backstage Docker Image
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.11.1'  # specify your Node.js version
+
+    - name: Install dependencies with Yarn
+      run: yarn install
+
+    - name: Build Backstage app
+      run: yarn build
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        push: false
+        tags: gonzalovazquez/fragment7:latest  # Change to your Docker Hub username/repository
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build Docker image
+      run: |
+        docker build -t gonzalovazquez/fragmen7:latest .
+
+    - name: Tag Docker image
+      run: |
+        docker tag gonzalovazquez/fragmen7:latest ${{ steps.login-ecr.outputs.registry }}/gonzalovazquez/fragmen7:latest
+
+    - name: Publish Docker image to AWS ECR
+      run: |
+        docker push ${{ steps.login-ecr.outputs.registry }}/gonzalovazquez/fragmen7:latest
+
