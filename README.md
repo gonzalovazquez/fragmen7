@@ -8,3 +8,5 @@ To start the app, run:
 yarn install
 yarn dev
 ```
+
+It uses Github Runners to build the application using Docker and publishing to AWS ECR.
