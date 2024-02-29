@@ -20,10 +20,10 @@ jobs:
         node-version: '20.11.1'  # specify your Node.js version
 
     - name: Install dependencies with Yarn
-      run: yarn install
+      run: yarn install --frozen-lockfile
 
     - name: Build Backstage app
-      run: yarn run build:all
+      run: yarn build:backend --config ../../app-config.yaml
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
