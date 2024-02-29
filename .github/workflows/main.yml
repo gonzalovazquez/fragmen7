@@ -20,7 +20,7 @@ jobs:
         node-version: '20.11.1'  # specify your Node.js version
 
     - name: Install dependencies with Yarn
-      run: yarn install --frozen-lockfile
+      run: yarn
 
     - name: Output type definition
       run: yarn tsc
