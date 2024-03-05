@@ -19,15 +19,6 @@ jobs:
       with:
         node-version: '20.11.1'  # specify your Node.js version
 
-    - name: Install dependencies with Yarn
-      run: yarn
-
-    - name: Output type definition
-      run: yarn tsc
-
-    - name: Build Backstage app
-      run: yarn build:all
-
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
 
