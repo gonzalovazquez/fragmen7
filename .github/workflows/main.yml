@@ -48,7 +48,7 @@ jobs:
         docker build . -f packages/backend/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
         # Push this image to Amazon ECR.
-        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker push public.ecr.aws/i2c1m6e4/gonzalovazquez/fragmen7:$IMAGE_TAG
 
     - name: Verify pushed images
       run: |
