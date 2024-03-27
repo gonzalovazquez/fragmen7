@@ -33,7 +33,7 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
       with:
         role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }} # You may need to provide this if using a specific role
-        region: ${{ secrets.AWS_REGION }}
+        region: ${{ vars.AWS_REGION }}
 
     - name: Build, tag, and push image to Amazon ECR
       env:
