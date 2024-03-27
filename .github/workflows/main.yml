@@ -20,11 +20,13 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '16'
+        cache: 'yarn' # Enable yarn cache
+
+    - name: Install dependencies
+      run: yarn install
 
     - name: Build project
-      run: |
-        npm install
-        npm run build
+      run: yarn build
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -48,4 +50,3 @@ jobs:
     - name: Verify pushed images
       run: |
         aws ecr describe-images --repository-name $ECR_REPOSITORY --image-ids imageTag=$IMAGE_TAG
-
