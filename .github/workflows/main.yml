@@ -1,59 +1,51 @@
-name: Build and Publish Backstage Docker Image
+name: Build and Push to ECR
 
 on:
   push:
     branches:
-      - main  # or your default branch
-  pull_request:
+      - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
-    environment: development  # Specifies the environment to use
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
       with:
-        node-version: '20.11.1'  # specify your Node.js version
+        node-version: '16'
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-
-    -
-      # Setting up Docker Buildx with docker-container driver is required
-      # at the moment to be able to use a subdirectory with Git context
-      name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    - name: Build and push
-      uses: docker/build-push-action@v5
-      with:
-        context: "{{defaultContext}}:packages/backend"
-        push: false
-        tags: gonzalovazquez/fragment7:latest
-  
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:oidc-provider/token.actions.githubusercontent.com
-        aws-region: ${{ vars.AWS_REGION}}
+    - name: Build project
+      run: |
+        npm install
+        npm run build
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }} # You may need to provide this if using a specific role
+        region: ${{ secrets.AWS_REGION }}
 
-    - name: Build Docker image
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: gonzalovazquez/fragmen7
+        IMAGE_TAG: latest
       run: |
-        docker build -t gonzalovazquez/fragmen7:latest .
+        # Build your Docker image.
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
-    - name: Tag Docker image
-      run: |
-        docker tag gonzalovazquez/fragmen7:latest ${{ vars.REGISTRY }}:latest
+        # Push this image to Amazon ECR.
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    - name: Publish Docker image to AWS ECR
+    - name: Verify pushed images
       run: |
-        docker push ${{ vars.REGISTRY }}:latest
+        aws ecr describe-images --repository-name $ECR_REPOSITORY --image-ids imageTag=$IMAGE_TAG
 
